@@ -1,4 +1,3 @@
-import os
 import mlflow
 import mlflow.sklearn
 import pandas as pd
@@ -9,7 +8,13 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    roc_auc_score
+)
 
 
 # =========================
@@ -134,14 +139,38 @@ pipeline = Pipeline(
 
 mlflow.set_experiment(EXPERIMENT_NAME)
 
-with mlflow.start_run() as run:
+# MLflow Project sudah membuat active run.
+# Jika script dijalankan langsung, buat run baru.
+active_run = mlflow.active_run()
+
+if active_run is None:
+    run_context = mlflow.start_run()
+    should_end_run = True
+else:
+    run_context = active_run
+    should_end_run = False
+
+try:
+    run = mlflow.active_run()
 
     print(f"MLflow Run ID: {run.info.run_id}")
 
+    # =========================
+    # TRAINING
+    # =========================
+
     pipeline.fit(X_train, y_train)
+
+    # =========================
+    # PREDICTION
+    # =========================
 
     y_pred = pipeline.predict(X_test)
     y_prob = pipeline.predict_proba(X_test)[:, 1]
+
+    # =========================
+    # EVALUATION
+    # =========================
 
     accuracy = accuracy_score(y_test, y_pred)
     precision = precision_score(y_test, y_pred)
@@ -149,25 +178,76 @@ with mlflow.start_run() as run:
     f1 = f1_score(y_test, y_pred)
     roc_auc = roc_auc_score(y_test, y_prob)
 
-    # Log parameters
-    mlflow.log_param("model", "LogisticRegression")
-    mlflow.log_param("C", 1.0)
-    mlflow.log_param("max_iter", 1000)
-    mlflow.log_param("test_size", 0.2)
-    mlflow.log_param("random_state", 42)
+    # =========================
+    # LOG PARAMETERS
+    # =========================
 
-    # Log metrics
-    mlflow.log_metric("accuracy", accuracy)
-    mlflow.log_metric("precision", precision)
-    mlflow.log_metric("recall", recall)
-    mlflow.log_metric("f1_score", f1)
-    mlflow.log_metric("roc_auc", roc_auc)
+    mlflow.log_param(
+        "model",
+        "LogisticRegression"
+    )
 
-    # Log model
+    mlflow.log_param(
+        "C",
+        1.0
+    )
+
+    mlflow.log_param(
+        "max_iter",
+        1000
+    )
+
+    mlflow.log_param(
+        "test_size",
+        0.2
+    )
+
+    mlflow.log_param(
+        "random_state",
+        42
+    )
+
+    # =========================
+    # LOG METRICS
+    # =========================
+
+    mlflow.log_metric(
+        "accuracy",
+        accuracy
+    )
+
+    mlflow.log_metric(
+        "precision",
+        precision
+    )
+
+    mlflow.log_metric(
+        "recall",
+        recall
+    )
+
+    mlflow.log_metric(
+        "f1_score",
+        f1
+    )
+
+    mlflow.log_metric(
+        "roc_auc",
+        roc_auc
+    )
+
+    # =========================
+    # LOG MODEL
+    # =========================
+
     mlflow.sklearn.log_model(
         pipeline,
         name="model"
     )
+
+    # =========================
+    # OUTPUT
+    # =========================
 
     print("\nTraining completed.")
     print(f"Accuracy : {accuracy:.4f}")
@@ -176,3 +256,9 @@ with mlflow.start_run() as run:
     print(f"F1 Score : {f1:.4f}")
     print(f"ROC-AUC  : {roc_auc:.4f}")
     print(f"Run ID   : {run.info.run_id}")
+
+finally:
+    # Hanya mengakhiri run jika run dibuat oleh script.
+    # Run yang dibuat oleh MLflow Project dibiarkan dikelola MLflow.
+    if should_end_run:
+        mlflow.end_run()
