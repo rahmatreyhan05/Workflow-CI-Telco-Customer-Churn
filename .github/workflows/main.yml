@@ -14,24 +14,63 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # =========================
+      # CHECKOUT
+      # =========================
+
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      # =========================
+      # SETUP PYTHON
+      # =========================
 
       - name: Setup Python 3.12.7
         uses: actions/setup-python@v5
         with:
           python-version: "3.12.7"
 
+      # =========================
+      # CHECK ENVIRONMENT
+      # =========================
+
       - name: Check environment
         run: |
           python --version
           pip --version
+
+      # =========================
+      # INSTALL DEPENDENCIES
+      # =========================
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # =========================
+      # RUN MLFLOW PROJECT
+      # =========================
+
       - name: Run MLflow Project
         run: |
           mlflow run . --env-manager=local
+
+      # =========================
+      # SAVE MLFLOW RUN ID
+      # =========================
+
+      - name: Save MLflow Run ID
+        run: |
+          echo "MLflow Run ID:"
+          cat mlflow_run_id.txt
+
+      # =========================
+      # UPLOAD ARTIFACT
+      # =========================
+
+      - name: Upload MLflow Run ID
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlflow-run-id
+          path: mlflow_run_id.txt

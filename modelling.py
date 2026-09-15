@@ -174,6 +174,9 @@ try:
         f"MLflow Run ID: {run.info.run_id}"
     )
 
+    with open("mlflow_run_id.txt", "w", encoding="utf-8") as file:
+        file.write(run.info.run_id)
+
     # =========================
     # TRAINING
     # =========================
