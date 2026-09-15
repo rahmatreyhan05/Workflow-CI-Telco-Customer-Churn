@@ -288,7 +288,8 @@ try:
 
     mlflow.sklearn.log_model(
         pipeline,
-        name="model"
+        name="model",
+        serialization_format="cloudpickle"
     )
 
     # =========================
