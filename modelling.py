@@ -1,3 +1,5 @@
+import os
+
 import mlflow
 import mlflow.sklearn
 import pandas as pd
@@ -132,229 +134,196 @@ pipeline = Pipeline(
     ]
 )
 
+
 # =========================
-# MLFLOW
+# MLFLOW RUN
 # =========================
 
 mlflow_run_id = os.getenv("MLFLOW_RUN_ID")
 
 if mlflow_run_id:
-    # Jika dijalankan melalui MLflow Project,
-    # gunakan Run ID yang sudah dibuat oleh MLflow.
-    print(f"Using MLflow Project Run ID: {mlflow_run_id}")
+    # =========================
+    # MLflow Project
+    # =========================
 
-    with mlflow.start_run(run_id=mlflow_run_id) as run:
-        print(f"MLflow Run ID: {run.info.run_id}")
+    print(
+        f"MLflow Project Run ID: {mlflow_run_id}"
+    )
 
-        # =========================
-        # TRAINING
-        # =========================
+    mlflow.start_run(
+        run_id=mlflow_run_id
+    )
 
-        pipeline.fit(X_train, y_train)
-
-        # =========================
-        # PREDICTION
-        # =========================
-
-        y_pred = pipeline.predict(X_test)
-        y_prob = pipeline.predict_proba(X_test)[:, 1]
-
-        # =========================
-        # EVALUATION
-        # =========================
-
-        accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred)
-        recall = recall_score(y_test, y_pred)
-        f1 = f1_score(y_test, y_pred)
-        roc_auc = roc_auc_score(y_test, y_prob)
-
-        # =========================
-        # LOG PARAMETERS
-        # =========================
-
-        mlflow.log_param(
-            "model",
-            "LogisticRegression"
-        )
-
-        mlflow.log_param(
-            "C",
-            1.0
-        )
-
-        mlflow.log_param(
-            "max_iter",
-            1000
-        )
-
-        mlflow.log_param(
-            "test_size",
-            0.2
-        )
-
-        mlflow.log_param(
-            "random_state",
-            42
-        )
-
-        # =========================
-        # LOG METRICS
-        # =========================
-
-        mlflow.log_metric(
-            "accuracy",
-            accuracy
-        )
-
-        mlflow.log_metric(
-            "precision",
-            precision
-        )
-
-        mlflow.log_metric(
-            "recall",
-            recall
-        )
-
-        mlflow.log_metric(
-            "f1_score",
-            f1
-        )
-
-        mlflow.log_metric(
-            "roc_auc",
-            roc_auc
-        )
-
-        # =========================
-        # LOG MODEL
-        # =========================
-
-        mlflow.sklearn.log_model(
-            pipeline,
-            name="model"
-        )
-
-        # =========================
-        # OUTPUT
-        # =========================
-
-        print("\nTraining completed.")
-        print(f"Accuracy : {accuracy:.4f}")
-        print(f"Precision: {precision:.4f}")
-        print(f"Recall   : {recall:.4f}")
-        print(f"F1 Score : {f1:.4f}")
-        print(f"ROC-AUC  : {roc_auc:.4f}")
-        print(f"Run ID   : {run.info.run_id}")
+    run = mlflow.active_run()
 
 else:
-    # Jika modelling.py dijalankan langsung,
-    # buat experiment dan run baru.
-    mlflow.set_experiment(EXPERIMENT_NAME)
+    # =========================
+    # Direct Python Execution
+    # =========================
 
-    with mlflow.start_run() as run:
+    mlflow.set_experiment(
+        EXPERIMENT_NAME
+    )
 
-        print(f"MLflow Run ID: {run.info.run_id}")
+    run = mlflow.start_run()
 
-        # =========================
-        # TRAINING
-        # =========================
 
-        pipeline.fit(X_train, y_train)
+try:
 
-        # =========================
-        # PREDICTION
-        # =========================
+    print(
+        f"MLflow Run ID: {run.info.run_id}"
+    )
 
-        y_pred = pipeline.predict(X_test)
-        y_prob = pipeline.predict_proba(X_test)[:, 1]
+    # =========================
+    # TRAINING
+    # =========================
 
-        # =========================
-        # EVALUATION
-        # =========================
+    pipeline.fit(
+        X_train,
+        y_train
+    )
 
-        accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred)
-        recall = recall_score(y_test, y_pred)
-        f1 = f1_score(y_test, y_pred)
-        roc_auc = roc_auc_score(y_test, y_prob)
+    # =========================
+    # PREDICTION
+    # =========================
 
-        # =========================
-        # LOG PARAMETERS
-        # =========================
+    y_pred = pipeline.predict(
+        X_test
+    )
 
-        mlflow.log_param(
-            "model",
-            "LogisticRegression"
-        )
+    y_prob = pipeline.predict_proba(
+        X_test
+    )[:, 1]
 
-        mlflow.log_param(
-            "C",
-            1.0
-        )
+    # =========================
+    # EVALUATION
+    # =========================
 
-        mlflow.log_param(
-            "max_iter",
-            1000
-        )
+    accuracy = accuracy_score(
+        y_test,
+        y_pred
+    )
 
-        mlflow.log_param(
-            "test_size",
-            0.2
-        )
+    precision = precision_score(
+        y_test,
+        y_pred
+    )
 
-        mlflow.log_param(
-            "random_state",
-            42
-        )
+    recall = recall_score(
+        y_test,
+        y_pred
+    )
 
-        # =========================
-        # LOG METRICS
-        # =========================
+    f1 = f1_score(
+        y_test,
+        y_pred
+    )
 
-        mlflow.log_metric(
-            "accuracy",
-            accuracy
-        )
+    roc_auc = roc_auc_score(
+        y_test,
+        y_prob
+    )
 
-        mlflow.log_metric(
-            "precision",
-            precision
-        )
+    # =========================
+    # LOG PARAMETERS
+    # =========================
 
-        mlflow.log_metric(
-            "recall",
-            recall
-        )
+    mlflow.log_param(
+        "model",
+        "LogisticRegression"
+    )
 
-        mlflow.log_metric(
-            "f1_score",
-            f1
-        )
+    mlflow.log_param(
+        "C",
+        1.0
+    )
 
-        mlflow.log_metric(
-            "roc_auc",
-            roc_auc
-        )
+    mlflow.log_param(
+        "max_iter",
+        1000
+    )
 
-        # =========================
-        # LOG MODEL
-        # =========================
+    mlflow.log_param(
+        "test_size",
+        0.2
+    )
 
-        mlflow.sklearn.log_model(
-            pipeline,
-            name="model"
-        )
+    mlflow.log_param(
+        "random_state",
+        42
+    )
 
-        # =========================
-        # OUTPUT
-        # =========================
+    # =========================
+    # LOG METRICS
+    # =========================
 
-        print("\nTraining completed.")
-        print(f"Accuracy : {accuracy:.4f}")
-        print(f"Precision: {precision:.4f}")
-        print(f"Recall   : {recall:.4f}")
-        print(f"F1 Score : {f1:.4f}")
-        print(f"ROC-AUC  : {roc_auc:.4f}")
-        print(f"Run ID   : {run.info.run_id}")
+    mlflow.log_metric(
+        "accuracy",
+        accuracy
+    )
+
+    mlflow.log_metric(
+        "precision",
+        precision
+    )
+
+    mlflow.log_metric(
+        "recall",
+        recall
+    )
+
+    mlflow.log_metric(
+        "f1_score",
+        f1
+    )
+
+    mlflow.log_metric(
+        "roc_auc",
+        roc_auc
+    )
+
+    # =========================
+    # LOG MODEL
+    # =========================
+
+    mlflow.sklearn.log_model(
+        pipeline,
+        name="model"
+    )
+
+    # =========================
+    # OUTPUT
+    # =========================
+
+    print("\nTraining completed.")
+
+    print(
+        f"Accuracy : {accuracy:.4f}"
+    )
+
+    print(
+        f"Precision: {precision:.4f}"
+    )
+
+    print(
+        f"Recall   : {recall:.4f}"
+    )
+
+    print(
+        f"F1 Score : {f1:.4f}"
+    )
+
+    print(
+        f"ROC-AUC  : {roc_auc:.4f}"
+    )
+
+    print(
+        f"Run ID   : {run.info.run_id}"
+    )
+
+finally:
+
+    # Tutup run yang sedang aktif.
+    if mlflow.active_run():
+
+        mlflow.end_run()
