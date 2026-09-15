@@ -74,3 +74,17 @@ jobs:
         with:
           name: mlflow-run-id
           path: mlflow_run_id.txt
+
+      # =========================
+      # BUILD DOCKER IMAGE
+      # =========================
+
+      - name: Build Docker image from MLflow model
+        run: |
+          RUN_ID=$(cat mlflow_run_id.txt)
+
+          echo "Using MLflow Run ID: $RUN_ID"
+
+          mlflow models build-docker \
+            --model-uri "runs:/$RUN_ID/model" \
+            --name "telco-customer-churn"
