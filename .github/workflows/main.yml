@@ -80,6 +80,11 @@ jobs:
           name: mlflow-run-id
           path: mlflow_run_id.txt
 
+      - name: Show MLflow Model URI
+        run: |
+          echo "MLflow Model URI:"
+          cat mlflow_model_uri.txt
+
       # =========================
       # BUILD DOCKER IMAGE
       # =========================

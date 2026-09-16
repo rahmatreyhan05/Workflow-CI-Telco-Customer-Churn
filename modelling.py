@@ -289,11 +289,14 @@ try:
     # LOG MODEL
     # =========================
 
-    mlflow.sklearn.log_model(
+    model_info = mlflow.sklearn.log_model(
         pipeline,
         name="model",
         serialization_format="cloudpickle"
     )
+
+    with open("mlflow_model_uri.txt", "w", encoding="utf-8") as file:
+        file.write(model_info.model_uri)
 
     # =========================
     # OUTPUT
