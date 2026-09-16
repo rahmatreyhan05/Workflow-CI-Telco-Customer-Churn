@@ -1,7 +1,0 @@
-name: telco-customer-churn
-
-entry_points:
-  main:
-    parameters:
-      data_url: {type: str, default: "https://raw.githubusercontent.com/Nas-virat/Telco-Customer-Churn/main/Telco-Customer-Churn.csv"}
-    command: "python modelling.py"

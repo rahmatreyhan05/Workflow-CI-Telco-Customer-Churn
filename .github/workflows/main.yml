@@ -59,7 +59,7 @@ jobs:
 
       - name: Run MLflow Project
         run: |
-          mlflow run . --env-manager=local
+          mlflow run ./MLProject --env-manager=local
 
       # =========================
       # SAVE MLFLOW RUN ID
@@ -68,7 +68,7 @@ jobs:
       - name: Save MLflow Run ID
         run: |
           echo "MLflow Run ID:"
-          cat mlflow_run_id.txt
+          cat MLProject/mlflow_run_id.txt
 
       # =========================
       # UPLOAD ARTIFACT
@@ -78,12 +78,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mlflow-run-id
-          path: mlflow_run_id.txt
+          path: MLProject/mlflow_run_id.txt
 
       - name: Show MLflow Model URI
         run: |
           echo "MLflow Model URI:"
-          cat mlflow_model_uri.txt
+          cat MLProject/mlflow_model_uri.txt
 
       # =========================
       # BUILD DOCKER IMAGE
@@ -91,13 +91,13 @@ jobs:
 
       - name: Build Docker image from MLflow model
         run: |
-          MODEL_URI=$(cat mlflow_model_uri.txt)
+          MODEL_URI=$(cat MLProject/mlflow_model_uri.txt)
 
           echo "Using MLflow Model URI: $MODEL_URI"
 
            mlflow models build-docker \
-              --model-uri "$MODEL_URI" \
-              --name "telco-customer-churn"
+            --model-uri "$MODEL_URI" \
+            --name "telco-customer-churn"
 
       # =========================
       # LOGIN DOCKER HUB

@@ -1,0 +1,6 @@
+MLProject/mlflow_run_id.txt
+MLProject/mlflow_model_uri.txt
+__pycache__/
+*.pyc
+mlflow.db
+mlruns/
